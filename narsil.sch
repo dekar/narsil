@@ -70,10 +70,10 @@
 <layer number="95" name="Names" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="96" name="Values" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="97" name="Info" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="98" name="Guide" color="6" fill="1" visible="yes" active="yes"/>
+<layer number="98" name="Guide" color="6" fill="1" visible="no" active="yes"/>
 <layer number="100" name="Muster" color="7" fill="1" visible="no" active="no"/>
-<layer number="101" name="Patch_Top" color="12" fill="4" visible="yes" active="yes"/>
-<layer number="116" name="Patch_BOT" color="9" fill="4" visible="yes" active="yes"/>
+<layer number="101" name="Patch_Top" color="12" fill="4" visible="no" active="yes"/>
+<layer number="116" name="Patch_BOT" color="9" fill="4" visible="no" active="yes"/>
 <layer number="200" name="200bmp" color="1" fill="10" visible="no" active="no"/>
 <layer number="201" name="201bmp" color="2" fill="1" visible="no" active="no"/>
 <layer number="202" name="202bmp" color="3" fill="1" visible="no" active="no"/>
@@ -87,7 +87,7 @@
 <layer number="224" name="224bmp" color="25" fill="1" visible="no" active="no"/>
 <layer number="250" name="Descript" color="3" fill="1" visible="no" active="no"/>
 <layer number="251" name="SMDround" color="12" fill="11" visible="no" active="no"/>
-<layer number="254" name="cooling" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="254" name="cooling" color="7" fill="1" visible="no" active="yes"/>
 </layers>
 <schematic xreflabel="%F%N/%S.%C%R" xrefpart="/%S.%C%R">
 <libraries>
@@ -18132,6 +18132,11 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="JP1" library="jumper" deviceset="JP1E" device=""/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
+<part name="JP2" library="jumper" deviceset="JP1E" device=""/>
+<part name="P+15" library="supply1" deviceset="VCC" device=""/>
+<part name="GND14" library="supply1" deviceset="GND" device=""/>
+<part name="JP3" library="jumper" deviceset="JP4E" device=""/>
+<part name="JP4" library="jumper" deviceset="JP4E" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -18410,6 +18415,11 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <instance part="GND12" gate="1" x="127" y="96.52"/>
 <instance part="JP1" gate="A" x="25.4" y="172.72"/>
 <instance part="GND13" gate="1" x="27.94" y="167.64"/>
+<instance part="JP2" gate="A" x="86.36" y="256.54"/>
+<instance part="P+15" gate="VCC" x="81.28" y="256.54" rot="MR0"/>
+<instance part="GND14" gate="1" x="93.98" y="256.54" rot="MR180"/>
+<instance part="JP3" gate="G$1" x="152.4" y="116.84" rot="R90"/>
+<instance part="JP4" gate="G$1" x="149.86" y="106.68" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -18549,6 +18559,11 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <pinref part="JTAG" gate="B" pin="7"/>
 <pinref part="P+13" gate="VCC" pin="VCC"/>
 <wire x1="86.36" y1="106.68" x2="104.14" y2="106.68" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="JP2" gate="A" pin="1"/>
+<pinref part="P+15" gate="VCC" pin="VCC"/>
+<wire x1="81.28" y1="254" x2="86.36" y2="254" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -18785,6 +18800,11 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <segment>
 <pinref part="JP1" gate="A" pin="2"/>
 <pinref part="GND13" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="JP2" gate="A" pin="2"/>
+<pinref part="GND14" gate="1" pin="GND"/>
+<wire x1="93.98" y1="254" x2="88.9" y2="254" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="AGND" class="0">
@@ -19297,56 +19317,62 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <net name="PC0" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC0"/>
-<label x="154.94" y="121.92" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<label x="144.78" y="121.92" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <wire x1="154.94" y1="121.92" x2="160.02" y2="121.92" width="0.1524" layer="91"/>
+<pinref part="JP3" gate="G$1" pin="4"/>
 </segment>
 </net>
 <net name="PC1" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC1"/>
-<label x="154.94" y="119.38" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<label x="144.78" y="119.38" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <wire x1="154.94" y1="119.38" x2="160.02" y2="119.38" width="0.1524" layer="91"/>
+<pinref part="JP3" gate="G$1" pin="3"/>
 </segment>
 </net>
 <net name="PC2" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC2"/>
-<label x="154.94" y="116.84" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<label x="144.78" y="116.84" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <wire x1="154.94" y1="116.84" x2="160.02" y2="116.84" width="0.1524" layer="91"/>
+<pinref part="JP3" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="PC3" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC3"/>
-<label x="154.94" y="114.3" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<label x="144.78" y="114.3" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <wire x1="154.94" y1="114.3" x2="160.02" y2="114.3" width="0.1524" layer="91"/>
+<pinref part="JP3" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="PC4" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC4"/>
-<label x="154.94" y="111.76" size="1.27" layer="95" rot="MR0" xref="yes"/>
-<wire x1="154.94" y1="111.76" x2="160.02" y2="111.76" width="0.1524" layer="91"/>
+<label x="144.78" y="111.76" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<wire x1="152.4" y1="111.76" x2="160.02" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="JP4" gate="G$1" pin="4"/>
 </segment>
 </net>
 <net name="PC5" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC5"/>
-<label x="154.94" y="109.22" size="1.27" layer="95" rot="MR0" xref="yes"/>
-<wire x1="154.94" y1="109.22" x2="160.02" y2="109.22" width="0.1524" layer="91"/>
+<label x="144.78" y="109.22" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<wire x1="152.4" y1="109.22" x2="160.02" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="JP4" gate="G$1" pin="3"/>
 </segment>
 </net>
 <net name="PC6" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC6"/>
-<label x="154.94" y="106.68" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<label x="144.78" y="106.68" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <wire x1="154.94" y1="106.68" x2="160.02" y2="106.68" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="PC7" class="0">
 <segment>
 <pinref part="U1" gate="PORTC_L" pin="PC7"/>
-<label x="154.94" y="104.14" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<label x="144.78" y="104.14" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <wire x1="154.94" y1="104.14" x2="160.02" y2="104.14" width="0.1524" layer="91"/>
 </segment>
 </net>
