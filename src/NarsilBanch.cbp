@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="NarsilBanch" />
+		<Option pch_mode="2" />
+		<Option compiler="armelfgcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="fw/Debug/fw" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="5" />
+				<Option compiler="armelfgcc" />
+				<Compiler>
+					<Add option="-O0 -g3" />
+					<Add option="-DDEBUG" />
+				</Compiler>
+				<ExtraCommands>
+					<Add after="arm-none-eabi-objdump -S fw/Debug/fw  &gt; fw/Debug/fw.list" />
+					<Add after="arm-none-eabi-objcopy -O binary fw/Debug/fw fw/Debug/fw.bin" />
+					<Add after="arm-none-eabi-objcopy -O ihex fw/Debug/fw fw/Debug/fw.hex" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="fw/Release/fw" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="5" />
+				<Option compiler="armelfgcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-finline -finline-functions-called-once" />
+				</Compiler>
+				<ExtraCommands>
+					<Add after="arm-none-eabi-objcopy -O binary fw/Release/fw.elf fw/Release/fw.bin" />
+					<Add after="arm-none-eabi-objcopy -O ihex fw/Release/fw.elf fw/Release/fw.hex" />
+				</ExtraCommands>
+			</Target>
+			<Environment>
+				<Variable name="DEVICE_TYPE" value="STM32F2XX" />
+				<Variable name="HSE_VALUE" value="25000000" />
+			</Environment>
+		</Build>
+		<Compiler>
+			<Add option="-mthumb" />
+			<Add option="-Wshadow" />
+			<Add option="-Winline" />
+			<Add option="-W" />
+			<Add option="-Wall" />
+			<Add option="-Wcast-qual -Wwrite-strings -std=gnu99 -mcpu=cortex-m3 -ffunction-sections" />
+			<Add option="-D$(DEVICE_TYPE)" />
+			<Add option="-DHSE_VALUE=$(HSE_VALUE)" />
+			<Add option="-DUSE_STDPERIPH_DRIVER" />
+			<Add directory="lib/inc" />
+			<Add directory="lib/inc/STM32F2XX_StdPeriph_Driver" />
+			<Add directory="." />
+			<Add directory="lib/inc/STM32_USB-FS-Device_Driver" />
+			<Add directory="lib/usb" />
+			<Add directory="lib/sdio" />
+			<Add directory="lib/inc/STM32_USB_OTG_Driver" />
+		</Compiler>
+		<Linker>
+			<Add option="-Tstm32.ld" />
+			<Add option="-Wl,--gc-sections,-Map=fw/main.map,-cref" />
+			<Add option="-mthumb -mcpu=cortex-m3" />
+			<Add library="lib/stdPeriph/libstm32f2xx.a" />
+			<Add library="lib/stdPeriph/startup_stm32f2xx.o" />
+			<Add library="lib/userUSB/libusbstm32f2xx.a" />
+			<Add directory="/usr/arm-none-eabi/lib" />
+		</Linker>
+		<Unit filename="adc_dma.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="adc_dma.h" />
+		<Unit filename="dac.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="dac.h" />
+		<Unit filename="lcd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lcd.h" />
+		<Unit filename="lib/userUSB/usb_bsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/userUSB/usb_conf.h" />
+		<Unit filename="lib/userUSB/usbd_conf.h" />
+		<Unit filename="lib/userUSB/usbd_desc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/userUSB/usbd_desc.h" />
+		<Unit filename="lib/userUSB/usbd_usr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/userUSB/usbd_usr.h" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="rtc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="rtc.h" />
+		<Unit filename="spi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="spi.h" />
+		<Unit filename="stm32f2xx_conf.h" />
+		<Unit filename="stm32f2xx_it.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="stm32f2xx_it.h" />
+		<Unit filename="timerService.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="timerService.h" />
+		<Unit filename="uart_dma.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="uart_dma.h" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger>
+				<remote_debugging>
+					<options conn_type="0" serial_baud="115200" ip_address="127.0.0.1" ip_port="2001" additional_cmds="monitor soft_reset_halt&#x0A;load&#x0A;monitor soft_reset_halt&#x0A;set mem inaccessible-by-default off&#x0A;compare-sections&#x0A;tbreak main&#x0A;continue " />
+				</remote_debugging>
+			</debugger>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,417 @@
+//#include "stm32f10x.h"
+#include "lcd.h"
+
+
+
+/*#define SCLK_SET        GPIO_SetBits(GPIO_LCD, PIN_SCLK);
+#define SDA_SET         GPIO_SetBits(GPIO_LCD, PIN_SDA);
+#define CS_SET          GPIO_SetBits(GPIO_LCD, PIN_CS);
+#define RST_SET         GPIO_SetBits(GPIO_LCD, PIN_RST);
+
+#define SCLK_RESET      GPIO_ResetBits(GPIO_LCD, PIN_SCLK);
+#define SDA_RESET       GPIO_ResetBits(GPIO_LCD, PIN_SDA);
+#define CS_RESET        GPIO_ResetBits(GPIO_LCD, PIN_CS);
+#define RST_RESET       GPIO_ResetBits(GPIO_LCD, PIN_RST);*/
+#define SCLK_SET        GPIO_LCD->BSRRL = PIN_SCLK
+#define SDA_SET         GPIO_LCD->BSRRL =  PIN_SDA
+#define CS_SET          GPIO_LCD->BSRRL =  PIN_CS
+#define RST_SET         GPIO_LCD->BSRRL =  PIN_RST
+
+#define SCLK_RESET      GPIO_LCD->BSRRH = PIN_SCLK
+#define SDA_RESET       GPIO_LCD->BSRRH = PIN_SDA
+#define CS_RESET        GPIO_LCD->BSRRH = PIN_CS
+#define RST_RESET       GPIO_LCD->BSRRH = PIN_RST
+
+
+
+
+
+#define CMD     0
+#define DATA    1
+
+// lookup table, here you can modify the font
+//const uint8_t backslash[] PROGMEM
+const unsigned char FontLookup[96][5]  ={
+{0x00, 0x00, 0x00, 0x00, 0x00},// (space)
+{0x00, 0x00, 0x5F, 0x00, 0x00},// !
+{0x00, 0x07, 0x00, 0x07, 0x00},// "
+{0x14, 0x7F, 0x14, 0x7F, 0x14},// #
+{0x24, 0x2A, 0x7F, 0x2A, 0x12},// $
+{0x23, 0x13, 0x08, 0x64, 0x62},// %
+{0x36, 0x49, 0x55, 0x22, 0x50},// &
+{0x00, 0x05, 0x03, 0x00, 0x00},// '
+{0x00, 0x1C, 0x22, 0x41, 0x00},// (
+{0x00, 0x41, 0x22, 0x1C, 0x00},// )
+{0x08, 0x2A, 0x1C, 0x2A, 0x08},// *
+{0x08, 0x08, 0x3E, 0x08, 0x08},// +
+{0x00, 0x50, 0x30, 0x00, 0x00},// ,
+{0x08, 0x08, 0x08, 0x08, 0x08},// -
+{0x00, 0x30, 0x30, 0x00, 0x00},// .
+{0x20, 0x10, 0x08, 0x04, 0x02},// /
+{0x3E, 0x51, 0x49, 0x45, 0x3E},// 0
+{0x00, 0x42, 0x7F, 0x40, 0x00},// 1
+{0x42, 0x61, 0x51, 0x49, 0x46},// 2
+{0x21, 0x41, 0x45, 0x4B, 0x31},// 3
+{0x18, 0x14, 0x12, 0x7F, 0x10},// 4
+{0x27, 0x45, 0x45, 0x45, 0x39},// 5
+{0x3C, 0x4A, 0x49, 0x49, 0x30},// 6
+{0x01, 0x71, 0x09, 0x05, 0x03},// 7
+{0x36, 0x49, 0x49, 0x49, 0x36},// 8
+{0x06, 0x49, 0x49, 0x29, 0x1E},// 9
+{0x00, 0x36, 0x36, 0x00, 0x00},// :
+{0x00, 0x56, 0x36, 0x00, 0x00},// ;
+{0x00, 0x08, 0x14, 0x22, 0x41},// <
+{0x14, 0x14, 0x14, 0x14, 0x14},// =
+{0x41, 0x22, 0x14, 0x08, 0x00},// >
+{0x02, 0x01, 0x51, 0x09, 0x06},// ?
+{0x32, 0x49, 0x79, 0x41, 0x3E},// @
+{0x7E, 0x11, 0x11, 0x11, 0x7E},// A
+{0x7F, 0x49, 0x49, 0x49, 0x36},// B
+{0x3E, 0x41, 0x41, 0x41, 0x22},// C
+{0x7F, 0x41, 0x41, 0x22, 0x1C},// D
+{0x7F, 0x49, 0x49, 0x49, 0x41},// E
+{0x7F, 0x09, 0x09, 0x01, 0x01},// F
+{0x3E, 0x41, 0x41, 0x51, 0x32},// G
+{0x7F, 0x08, 0x08, 0x08, 0x7F},// H
+{0x00, 0x41, 0x7F, 0x41, 0x00},// I
+{0x20, 0x40, 0x41, 0x3F, 0x01},// J
+{0x7F, 0x08, 0x14, 0x22, 0x41},// K
+{0x7F, 0x40, 0x40, 0x40, 0x40},// L
+{0x7F, 0x02, 0x04, 0x02, 0x7F},// M
+{0x7F, 0x04, 0x08, 0x10, 0x7F},// N
+{0x3E, 0x41, 0x41, 0x41, 0x3E},// O
+{0x7F, 0x09, 0x09, 0x09, 0x06},// P
+{0x3E, 0x41, 0x51, 0x21, 0x5E},// Q
+{0x7F, 0x09, 0x19, 0x29, 0x46},// R
+{0x46, 0x49, 0x49, 0x49, 0x31},// S
+{0x01, 0x01, 0x7F, 0x01, 0x01},// T
+{0x3F, 0x40, 0x40, 0x40, 0x3F},// U
+{0x1F, 0x20, 0x40, 0x20, 0x1F},// V
+{0x7F, 0x20, 0x18, 0x20, 0x7F},// W
+{0x63, 0x14, 0x08, 0x14, 0x63},// X
+{0x03, 0x04, 0x78, 0x04, 0x03},// Y
+{0x61, 0x51, 0x49, 0x45, 0x43},// Z
+{0x00, 0x00, 0x7F, 0x41, 0x41},// [
+{0x02, 0x04, 0x08, 0x10, 0x20},// "\"
+{0x41, 0x41, 0x7F, 0x00, 0x00},// ]
+{0x04, 0x02, 0x01, 0x02, 0x04},// ^
+{0x40, 0x40, 0x40, 0x40, 0x40},// _
+{0x00, 0x01, 0x02, 0x04, 0x00},// `
+{0x20, 0x54, 0x54, 0x54, 0x78},// a
+{0x7F, 0x48, 0x44, 0x44, 0x38},// b
+{0x38, 0x44, 0x44, 0x44, 0x20},// c
+{0x38, 0x44, 0x44, 0x48, 0x7F},// d
+{0x38, 0x54, 0x54, 0x54, 0x18},// e
+{0x08, 0x7E, 0x09, 0x01, 0x02},// f
+{0x08, 0x14, 0x54, 0x54, 0x3C},// g
+{0x7F, 0x08, 0x04, 0x04, 0x78},// h
+{0x00, 0x44, 0x7D, 0x40, 0x00},// i
+{0x20, 0x40, 0x44, 0x3D, 0x00},// j
+{0x00, 0x7F, 0x10, 0x28, 0x44},// k
+{0x00, 0x41, 0x7F, 0x40, 0x00},// l
+{0x7C, 0x04, 0x18, 0x04, 0x78},// m
+{0x7C, 0x08, 0x04, 0x04, 0x78},// n
+{0x38, 0x44, 0x44, 0x44, 0x38},// o
+{0x7C, 0x14, 0x14, 0x14, 0x08},// p
+{0x08, 0x14, 0x14, 0x18, 0x7C},// q
+{0x7C, 0x08, 0x04, 0x04, 0x08},// r
+{0x48, 0x54, 0x54, 0x54, 0x20},// s
+{0x04, 0x3F, 0x44, 0x40, 0x20},// t
+{0x3C, 0x40, 0x40, 0x20, 0x7C},// u
+{0x1C, 0x20, 0x40, 0x20, 0x1C},// v
+{0x3C, 0x40, 0x30, 0x40, 0x3C},// w
+{0x44, 0x28, 0x10, 0x28, 0x44},// x
+{0x0C, 0x50, 0x50, 0x50, 0x3C},// y
+{0x44, 0x64, 0x54, 0x4C, 0x44},// z
+{0x00, 0x08, 0x36, 0x41, 0x00},// {
+{0x00, 0x00, 0x7F, 0x00, 0x00},// |
+{0x00, 0x41, 0x36, 0x08, 0x00},// }
+{0x08, 0x08, 0x2A, 0x1C, 0x08},// ->
+{0x08, 0x1C, 0x2A, 0x08, 0x08} // <-
+};
+
+// clear LCD
+void Lcd_Clear(void){
+    unsigned int i;
+    Lcd_Write(CMD,0x40); // Y = 0
+    Lcd_Write(CMD,0xb0);
+    Lcd_Write(CMD,0x10); // X = 0
+    Lcd_Write(CMD,0x00);
+    Lcd_Write(CMD,0xae); // disable display;
+    for(i=0;i<864;i++)
+        Lcd_Write(DATA,0x00);
+    Lcd_Write(CMD,0x07);
+    Lcd_Write(CMD,0xaf); // enable display;
+}
+// init LCD
+
+__INLINE void Lcd_HWInit(void)
+{
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO_LCD, ENABLE);
+
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Pin = PIN_CS | PIN_RST | PIN_SCLK | PIN_SDA |PIN_LED;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_Init(GPIO_LCD, &GPIO_InitStructure);
+}
+
+void Lcd_Init(void)
+{
+    Lcd_HWInit();
+    Lcd_SetLED(DISABLE);
+    CS_RESET;
+    RST_RESET;
+    //_delay_ms(10);            // 5mS so says the stop watch(less than 5ms will not work)
+    int i;
+    for (i=0;i<65530;i++)
+        __ASM("nop;");
+    RST_SET;
+    Lcd_Write(CMD,0xE2);
+    for (i=0;i<65530;i++)
+        __ASM("nop;");
+
+    Lcd_Write(CMD,0x20); // write VOP register
+    Lcd_Write(CMD,0x90);
+    Lcd_Write(CMD,0xA4); // all on/normal display
+    Lcd_Write(CMD,0x2F); // Power control set(charge pump on/off)
+    Lcd_Write(CMD,0x40); // set start row address = 0
+    Lcd_Write(CMD,0xb0); // set Y-address = 0
+    Lcd_Write(CMD,0x10); // set X-address, upper 3 bits
+    Lcd_Write(CMD,0x0);  // set X-address, lower 4 bits
+    //Lcd_Write(CMD,0xC8); // mirror Y axis (about X axis)
+    //Lcd_Write(CMD,0xa1); // Invert screen in horizontal axis
+    Lcd_Write(CMD,0xac); // set initial row (R0) of the display
+    Lcd_Write(CMD,0x07);
+
+
+    Lcd_Clear(); // clear LCD
+    //Lcd_Write(CMD,0xa7); // invert display
+    for (i=0;i<65530;i++)
+        __ASM("nop;");
+    //Lcd_Write(CMD,0xa6); // normal display (non inverted)
+    CS_SET;
+    Lcd_SetX(0);
+    Lcd_x=0;
+}
+
+
+void Lcd_Write(char cd,unsigned char c)
+{
+    unsigned char i;
+    CS_RESET;
+    void print_char(u8 c);
+
+    SCLK_RESET;
+        if(cd)
+            {
+                SDA_SET;
+            }
+        else
+            {
+                SDA_RESET;
+            }
+
+    SCLK_SET;
+
+        for(i=0;i<8;i++)
+            {
+            SCLK_RESET;
+                if(c & 0x80)
+                    {
+                        SDA_SET;
+                    }
+                else
+                    {
+                        SDA_RESET;
+                    }
+            SCLK_SET;
+            c <<= 1;
+            }
+    CS_SET;
+}
+
+
+void Lcd_SetX(char x)
+{
+    Lcd_Write(CMD,0x10 | ((x>>4)&0x7));
+    Lcd_Write(CMD,x & 0x0f);
+    Lcd_x = x;
+}
+
+void Lcd_SetY(char y)
+{
+    char aux = 0;
+    while(y>7){
+        y -=8;
+        aux ++;
+    }
+
+    Lcd_Write(CMD,0xB0 | (aux & 0x0f));
+}
+
+void Lcd_Gotoxy(char x,char y)
+{
+    Lcd_Write(CMD,(0xB0|(y&0x0F)));         // Y axis initialisation: 0100 yyyy
+    Lcd_Write(CMD,(0x00|(x&0x0F)));         // X axis initialisation: 0000 xxxx ( x3 x2 x1 x0)
+    Lcd_Write(CMD,(0x10|((x>>4)&0x07))); // X axis initialisation: 0010 0xxx  ( x6 x5 x4)
+    Lcd_x = x;
+
+}
+
+
+//x dir >    y dir from last line to ^
+void Lcd_VLine(u8 x,u8 y/*,char on*/){
+    char aux[8];
+    uint8_t i;
+
+    for(i=0;i<8;i++)
+        aux[i] = 0;
+
+    i = 7;
+    while(y > 9){
+        aux[i] = 0xff;
+        y -= 8;
+        i--;
+    }
+
+    while(y > 0){
+        aux[i] >>= 1;
+        aux[i] |= 0x80;
+        y --;
+    }
+
+
+
+    for(y=0;y<8;y++){
+        Lcd_Write(CMD,0xB0 | y);
+        Lcd_SetX(x);
+        Lcd_Write(DATA,aux[y]);
+    }
+
+}
+
+// xdir is >       y is always < than y2  can be used for graphs
+void Lcd_Line(unsigned char x,unsigned char y,unsigned char y2/*,unsigned char on*/)
+{
+    char aux[8];
+    uint8_t i,o=0;
+    char c=1;
+    uint8_t index;
+
+    for(i=0;i<8;i++)
+        aux[i] = 0;
+
+
+    index = 0;
+    for(i=0;i<64;i++)
+    {
+
+        if(i >= y && i <= y2)
+        {
+            aux[index] |= c << o;
+        }
+
+        o ++;
+        if(o == 8)
+        {
+            o = 0;
+            index ++;
+        }
+    }
+
+
+    for(i=0;i<8;i++)
+    {
+        Lcd_Write(CMD,0xB0 | i);
+        Lcd_SetX(x);
+        Lcd_Write(DATA,aux[i]);
+    }
+
+
+}
+
+
+
+void Lcd_PrintChar(u8 c)
+{
+    if (c == '\r')
+    {
+        Lcd_Return();
+        return;
+    }
+    if (c == '\n')
+    {
+//        Lcd_Return();
+        return;
+    }
+
+
+    Lcd_x++;
+    if (Lcd_x==18)
+    {
+        Lcd_x=0;
+    }
+    CS_RESET;
+    u8 i;
+    for ( i = 0; i < 5; i++ )
+    {
+        Lcd_Write(DATA,(FontLookup[c - 32][i]) << 1);
+    }
+    Lcd_Write(DATA,0x00);
+    CS_SET;
+}
+
+void Lcd_PrintString(const char * message)
+{    // Write message to LCD (C string type)
+Lcd_Write(CMD,0xae); // disable display;
+    while (*message)
+    {            // Look for end of string
+        Lcd_PrintChar(*message++);
+    }
+   Lcd_Write(CMD,0xaf); // enable display;
+}
+void Lcd_Return()
+{
+    char a = 16-Lcd_x;
+    while (a--)
+        Lcd_PrintChar (' ');
+    Lcd_x = 0;
+}
+
+
+void Lcd_PrintInt (u16 c)
+{
+	char tmp;
+	tmp = (c & 0xF000) >> 12;
+	if (tmp > 9)
+		Lcd_PrintChar(tmp - 10 + 'A');
+	else
+		Lcd_PrintChar(tmp + '0');
+	tmp = (c & 0x0F00) >> 8;
+	if (tmp > 9)
+		Lcd_PrintChar(tmp - 10 + 'A');
+	else
+		Lcd_PrintChar(tmp + '0');
+	tmp = (c & 0x00F0) >> 4;
+	if (tmp > 9)
+		Lcd_PrintChar(tmp - 10 + 'A');
+	else
+		Lcd_PrintChar(tmp + '0');
+	tmp = c & 0x000F;
+	if (tmp > 9)
+		Lcd_PrintChar(tmp - 10 + 'A');
+	else
+		Lcd_PrintChar(tmp + '0');
+}
+
+
+void Lcd_SetLED(FunctionalState state)
+{
+    if (state == ENABLE)
+        GPIO_ResetBits(GPIO_LCD,PIN_LED);
+    else
+        GPIO_SetBits(GPIO_LCD,PIN_LED);
+
+}
